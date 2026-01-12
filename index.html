@@ -89,7 +89,6 @@ function calc() {
       社員負擔成本：${memberInitialCost} 元<br>
       社團代售抽成(10%)：${commission} 元<br>
       社團收益分成(10/n%)：${clubRevenueShare.toFixed(0)} 元<br>
-      簡單來說：社團幫你負擔10件的成本，而這10件屬於社團，剩下都是你的並且你請社團幫忙賣。<br>
       <hr>
       <b>社員最終利潤：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit.toFixed(0)}</span> 元</b>
     `;
@@ -103,7 +102,6 @@ function calc() {
       社員負擔成本：${memberInitialCost} 元<br>
       社團擁有週邊數量：10 件<br>
       社員自留週邊數量：${n - 10} 件<br>
-      簡單來說：社團幫你負擔10件的成本，而這10件屬於社團，剩下都是你的，社團不干涉。<br>
       <hr>
       <b>社員需支付：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
     `;
@@ -117,7 +115,6 @@ function calc() {
     detailHtml = `
       社員負擔成本：${memberInitialCost} 元<br>
       社團代售抽成(10%)：${commission} 元<br>
-      簡單來說：全部都是你的，但你付傭金讓社團幫你賣<br>
       <hr>
       <b>社員最終利潤：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
     `;
@@ -130,7 +127,6 @@ function calc() {
     detailHtml = `
       社員負擔成本：${memberInitialCost} 元<br>
       社員自留數量：${n} 件<br>
-      簡單來說：全部都是你的，社團不干涉<br>
       <hr>
       <b>社員需支付：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
     `;
