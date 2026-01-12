@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社團週邊成本利潤計算</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 15px;
+  }
+
+  .container {
+    max-width: 420px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin: auto;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  label {
+    font-size: 14px;
+    margin-top: 10px;
+    display: block;
+  }
+
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  button {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    margin-top: 15px;
+  }
+
+  button:hover {
+    background: #357ac9;
+  }
+
+  .result {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f0f8ff;
+    font-size: 15px;
+  }
+
+  .error {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .profit {
+    color: green;
+    font-weight: bold;
+  }
+
+  .loss {
+    color: red;
+    font-weight: bold;
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>社團週邊計算系統</h2>
+
+  <label>選擇方案</label>
+  <select id="plan">
+    <option value="1">方案一：社費10件 + 社團幫忙賣</option>
+    <option value="2">方案二：社費10件 + 自留自用</option>
+    <option value="3">方案三：自費全額 + 社團幫忙賣</option>
+    <option value="4">方案四：自費全額 + 自留自用</option>
+  </select>
+
+  <label>製作數量（n ≥ 20）</label>
+  <input type="number" id="n" min="20">
+
+  <label>單件成本</label>
+  <input type="number" id="c" min="0">
+
+  <label>單件售價</label>
+  <input type="number" id="p" min="0">
+
+  <label>成功賣出數量</label>
+  <input type="number" id="s" min="0">
+
+  <button onclick="calc()">計算</button>
+
+  <div id="error" class="error"></div>
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+function calc() {
+  let plan = document.getElementById("plan").value;
+  let n = Number(document.getElementById("n").value);
+  let c = Number(document.getElementById("c").value);
+  let p = Number(document.getElementById("p").value);
+  let s = Number(document.getElementById("s").value);
+
+  let error = document.getElementById("error");
+  let result = document.getElementById("result");
+  error.innerHTML = "";
+  result.innerHTML = "";
+
+  if (!n || !c || n < 20 || c < 0 || p < 0 || s < 0 || s > n) {
+    error.innerHTML = "❌ 請確認所有欄位正確填寫，製作數量需 ≥ 20，賣出數量不可超過製作總數";
+    return;
+  }
+
+  let totalRevenue = s * p;
+  let memberCost = 0;
+  let output = "";
+  let profit = 0;
+  let clubRevenueShare = 0;
+  let commission = 0;
+
+  if (plan == 1) {
+  if (s > n) {
+    error.innerHTML = "❌ 賣出數量不可超過製作總數";
+    return;
+  }
+
+  let memberCost = (n - 10) * c;              // 社員自費成本
+  let totalRevenue = s * p;                   // 總銷售收入
+  let clubRevenueShare = totalRevenue * (10 / n); // 社團收益比例
+  let commission = memberCost * 0.1;          // 社團抽成
+  let profit = totalRevenue - clubRevenueShare - commission - memberCost;
+
+  output = `
+社員支付金額：${memberCost + commission + clubRevenueShare}<br>
+社團擁有並販賣週邊：${n} 件<br>
+社員最終利潤：${profit}<br>
+<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span>
+`;
+}
+
+  if (plan == 2) {
+  let memberCost = (n - 10) * c;              // 社員自費成本
+  let totalRevenue = s * p;                   // 總銷售收入
+  let profit = totalRevenue - memberCost;
+    output = `
+社員支付金額：${(n - 10) * c}<br>
+社團擁有週邊數量：10 件<br>
+社員自留：${n - 10} 件<br>
+社員利潤：${profit} <br>
+`;
+  }
+
+  if (plan == 3) {
+    if (s > n) {
+      error.innerHTML = "❌ 賣出數量不可超過製作數量";
+      return;
+    }
+    let memberCost = n * c;              // 社員自費成本
+    let totalRevenue = s * p;                   // 總銷售收入
+    let commission = memberCost * 0.1;          // 社團抽成
+    profit = totalRevenue - cost - commission;
+
+    output = `
+社員支付金額：${memberCost + commission}<br>
+社團擁有週邊數量：0件<br>
+社員利潤：${profit} <br>
+<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span>
+`;
+  }
+
+  if (plan == 4) {
+    if (s > n) {
+      error.innerHTML = "❌ 賣出數量不可超過製作數量";
+      return;
+    }
+    output = `
+社員支付金額：${n * c}<br>
+社團擁有週邊數量：0件<br>
+社員自留：${n} 件<br>
+`;
+  }
+
+  result.innerHTML = output;
+}
+</script>
+</body>
+</html>
