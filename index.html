@@ -23,14 +23,14 @@
 
 <body>
 <div class="container">
-  <h2>社團週邊計算系統</h2>
+  <h2>洞洞社週邊計算系統</h2>
 
   <label>選擇方案</label>
   <select id="plan">
-    <option value="1">方案一：社費負擔10件 + 社團代售</option>
-    <option value="2">方案二：社費負擔10件 + 自留自用</option>
-    <option value="3">方案三：自費全額 + 社團代售</option>
-    <option value="4">方案四：自費全額 + 自留自用</option>
+    <option value="1">方案一：社費負擔10件 + 剩下社團代售</option>
+    <option value="2">方案二：社費負擔10件 + 剩下自留自用</option>
+    <option value="3">方案三：自費全額 + 全數社團代售</option>
+    <option value="4">方案四：自費全額 + 全數自留自用</option>
   </select>
 
   <label>製作數量 (n ≥ 20)</label>
@@ -43,7 +43,7 @@
   <input type="number" id="p" min="0" placeholder="例如: 200">
 
   <label>成功賣出數量 (s)</label>
-  <input type="number" id="s" min="0" placeholder="由社團或自行賣出的數量">
+  <input type="number" id="s" min="0" placeholder="由社團賣出數量">
 
   <button onclick="calc()">開始計算</button>
 
@@ -86,9 +86,10 @@ function calc() {
     
     clubOwnership = n; // 全部由社團統一銷售
     detailHtml = `
-      初期投入成本：${memberInitialCost} 元<br>
-      社團行政抽成(10%)：${commission} 元<br>
-      社團分成(10件份)：${clubRevenueShare.toFixed(0)} 元<br>
+      社員負擔成本：${memberInitialCost} 元<br>
+      社團代售抽成(10%)：${commission} 元<br>
+      社團收益分成(10/n%)：${clubRevenueShare.toFixed(0)} 元<br>
+      簡單來說：社團幫你負擔10件的成本，而這10件屬於社團，剩下都是你的並且你請社團幫忙賣。<br>
       <hr>
       <b>社員最終利潤：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit.toFixed(0)}</span> 元</b>
     `;
@@ -100,10 +101,11 @@ function calc() {
     
     detailHtml = `
       社員負擔成本：${memberInitialCost} 元<br>
-      社團公有數量：10 件<br>
-      社員自留數量：${n - 10} 件<br>
+      社團擁有週邊數量：10 件<br>
+      社員自留週邊數量：${n - 10} 件<br>
+      簡單來說：社團幫你負擔10件的成本，而這10件屬於社團，剩下都是你的，社團不干涉。<br>
       <hr>
-      <b>目前結算損益：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
+      <b>社員需支付：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
     `;
   }
   else if (plan == "3") {
@@ -113,8 +115,9 @@ function calc() {
     profit = totalRevenue - memberInitialCost - commission;
 
     detailHtml = `
-      初期投入成本：${memberInitialCost} 元<br>
-      社團行政抽成(10%)：${commission} 元<br>
+      社員負擔成本：${memberInitialCost} 元<br>
+      社團代售抽成(10%)：${commission} 元<br>
+      簡單來說：全部都是你的，但你付傭金讓社團幫你賣<br>
       <hr>
       <b>社員最終利潤：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
     `;
@@ -125,10 +128,11 @@ function calc() {
     profit = totalRevenue - memberInitialCost;
 
     detailHtml = `
-      社員支付成本：${memberInitialCost} 元<br>
+      社員負擔成本：${memberInitialCost} 元<br>
       社員自留數量：${n} 件<br>
+      簡單來說：全部都是你的，社團不干涉<br>
       <hr>
-      <b>目前結算損益：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
+      <b>社員需支付：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
     `;
   }
 
