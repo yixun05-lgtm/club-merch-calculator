@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社團週邊成本利潤計算</title>
+
+<style>
+  body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 15px; }
+  .container { max-width: 420px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: auto; }
+  h2 { text-align: center; margin-bottom: 15px; color: #333; }
+  label { font-size: 14px; margin-top: 10px; display: block; color: #666; }
+  input, select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+  button { background: #4a90e2; color: white; border: none; margin-top: 15px; cursor: pointer; font-weight: bold; }
+  button:hover { background: #357ac9; }
+  .result { margin-top: 15px; padding: 15px; border-radius: 8px; background: #f0f8ff; font-size: 15px; line-height: 1.6; }
+  .error { color: red; font-weight: bold; margin-top: 10px; font-size: 14px; }
+  .profit { color: green; font-weight: bold; }
+  .loss { color: red; font-weight: bold; }
+  hr { border: 0; border-top: 1px solid #eee; margin: 10px 0; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>社團週邊計算系統</h2>
+
+  <label>選擇方案</label>
+  <select id="plan">
+    <option value="1">方案一：社費負擔10件 + 社團代售</option>
+    <option value="2">方案二：社費負擔10件 + 自留自用</option>
+    <option value="3">方案三：自費全額 + 社團代售</option>
+    <option value="4">方案四：自費全額 + 自留自用</option>
+  </select>
+
+  <label>製作數量 (n ≥ 20)</label>
+  <input type="number" id="n" min="20" placeholder="例如: 50">
+
+  <label>單件成本 (c)</label>
+  <input type="number" id="c" min="0" placeholder="例如: 100">
+
+  <label>單件售價 (p)</label>
+  <input type="number" id="p" min="0" placeholder="例如: 200">
+
+  <label>成功賣出數量 (s)</label>
+  <input type="number" id="s" min="0" placeholder="由社團或自行賣出的數量">
+
+  <button onclick="calc()">開始計算</button>
+
+  <div id="error" class="error"></div>
+  <div id="result" class="result" style="display:none;"></div>
+</div>
+
+<script>
+function calc() {
+  const plan = document.getElementById("plan").value;
+  const n = Number(document.getElementById("n").value);
+  const c = Number(document.getElementById("c").value);
+  const p = Number(document.getElementById("p").value);
+  const s = Number(document.getElementById("s").value);
+
+  const errorDiv = document.getElementById("error");
+  const resultDiv = document.getElementById("result");
+  
+  errorDiv.innerHTML = "";
+  resultDiv.style.display = "none";
+
+  // 基本防呆
+  if (!n || n < 20) { errorDiv.innerHTML = "❌ 製作數量需至少 20 件"; return; }
+  if (c < 0 || p < 0 || s < 0) { errorDiv.innerHTML = "❌ 金額與數量不可為負數"; return; }
+  if (s > n) { errorDiv.innerHTML = "❌ 賣出數量不可超過製作總數"; return; }
+
+  let memberInitialCost = 0; // 社員初期投入成本
+  let commission = 0;        // 社團行政抽成
+  let clubOwnership = 0;     // 社團擁有的件數
+  let totalRevenue = s * p;  // 總營業額
+  let profit = 0;            // 社員最終損益
+  let detailHtml = "";
+
+  if (plan == "1") {
+    // 方案一：社費補貼10件成本，但社團抽成並按比例分帳
+    memberInitialCost = (n - 10) * c;
+    commission = memberInitialCost * 0.1; 
+    let clubRevenueShare = totalRevenue * (10 / n); // 10件份額歸社團
+    profit = totalRevenue - clubRevenueShare - commission - memberInitialCost;
+    
+    clubOwnership = n; // 全部由社團統一銷售
+    detailHtml = `
+      初期投入成本：${memberInitialCost} 元<br>
+      社團行政抽成(10%)：${commission} 元<br>
+      社團分成(10件份)：${clubRevenueShare.toFixed(0)} 元<br>
+      <hr>
+      <b>社員最終利潤：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit.toFixed(0)}</span> 元</b>
+    `;
+  } 
+  else if (plan == "2") {
+    // 方案二：社費補貼10件，其餘社員自留（若有賣出則是社員私下賣）
+    memberInitialCost = (n - 10) * c;
+    profit = totalRevenue - memberInitialCost;
+    
+    detailHtml = `
+      社員負擔成本：${memberInitialCost} 元<br>
+      社團公有數量：10 件<br>
+      社員自留數量：${n - 10} 件<br>
+      <hr>
+      <b>目前結算損益：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
+    `;
+  }
+  else if (plan == "3") {
+    // 方案三：全額自費，社團幫忙賣
+    memberInitialCost = n * c;
+    commission = memberInitialCost * 0.1;
+    profit = totalRevenue - memberInitialCost - commission;
+
+    detailHtml = `
+      初期投入成本：${memberInitialCost} 元<br>
+      社團行政抽成(10%)：${commission} 元<br>
+      <hr>
+      <b>社員最終利潤：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
+    `;
+  }
+  else if (plan == "4") {
+    // 方案四：全額自費，完全自留
+    memberInitialCost = n * c;
+    profit = totalRevenue - memberInitialCost;
+
+    detailHtml = `
+      社員支付成本：${memberInitialCost} 元<br>
+      社員自留數量：${n} 件<br>
+      <hr>
+      <b>目前結算損益：<span class="${profit >= 0 ? 'profit' : 'loss'}">${profit}</span> 元</b>
+    `;
+  }
+
+  resultDiv.innerHTML = detailHtml;
+  resultDiv.style.display = "block";
+}
+</script>
+</body>
+</html>
